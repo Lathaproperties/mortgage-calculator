@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Latha Properties – Malaysia Mortgage Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 720px;
+      background: #ffffff;
+      margin: auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    h1 {
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .results {
+      margin-top: 25px;
+      background: #f1f1f1;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .results span {
+      display: block;
+      margin: 8px 0;
+    }
+    .result-value {
+      font-weight: bold;
+    }
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+      margin-top: 30px;
+    }
+    canvas {
+      margin-top: 25px;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Latha Properties – Malaysia Mortgage Calculator</h1>
+
+    <label>Property Price (RM):</label>
+    <input type="number" id="price" value="1000000">
+
+    <label>Down Payment (%):</label>
+    <input type="number" id="down" value="10">
+
+    <label>Interest Rate (%):</label>
+    <input type="number" id="rate" value="3.6" step="0.01">
+
+    <label>Loan Term (Years):</label>
+    <input type="number" id="term" value="35">
+
+    <button onclick="calculateLoan()">Calculate</button>
+
+    <div class="results">
+      <span>Total Amount Financed: RM <span class="result-value" id="financed">–</span></span>
+      <span>Total Interest Payable: RM <span class="result-value" id="interest">–</span></span>
+      <span>Your Monthly Payment: RM <span class="result-value" id="monthly">–</span></span>
+    </div>
+
+    <canvas id="pieChart" width="400" height="300"></canvas>
+
+    <footer>Powered by LathaProperties.com</footer>
+  </div>
+
+  <script>
+    function calculateLoan() {
+      const price = parseFloat(document.getElementById('price').value);
+      const down = parseFloat(document.getElementById('down').value);
+      const rate = parseFloat(document.getElementById('rate').value);
+      const term = parseFloat(document.getElementById('term').value);
+
+      const financed = price * (100 - down) / 100;
+      const monthlyRate = rate / 12 / 100;
+      const months = term * 12;
+      const emi = financed * monthlyRate * Math.pow(1 + monthlyRate, months) /
+                  (Math.pow(1 + monthlyRate, months) - 1);
+      const totalRepayment = emi * months;
+      const interest = totalRepayment - financed;
+
+      document.getElementById('financed').innerText = financed.toLocaleString('en-MY', {maximumFractionDigits: 0});
+      document.getElementById('interest').innerText = interest.toLocaleString('en-MY', {maximumFractionDigits: 0});
+      document.getElementById('monthly').innerText = emi.toLocaleString('en-MY', {maximumFractionDigits: 0});
+
+      const ctx = document.getElementById('pieChart').getContext('2d');
+      if (window.pieInstance) window.pieInstance.destroy();
+      window.pieInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Total Amount Financed', 'Total Interest Payable'],
+          datasets: [{
+            data: [financed, interest],
+            backgroundColor: ['#4a90e2', '#d3d3d3'],
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return 'RM ' + context.raw.toLocaleString('en-MY');
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
